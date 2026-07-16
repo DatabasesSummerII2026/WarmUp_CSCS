@@ -9,27 +9,7 @@
 
 
 ---
-# Entity Relationship Diagram
 
-
-The database conceptual design was created using PlantUML.
-
-The ER diagram represents:
-
-- Entities
-- Attributes
-- Primary keys
-- Foreign keys
-- Relationship constraints
-
-
-![CSCS ER Diagram](ER_Diagram/CSCS_ER_Diagram.png)
-
-
-Source file:
-
-
-ER_Diagram/CSCS_ER_Diagram.puml
 # 1. Project Description
 
 The **Country Soccer Club System (CSCS)** is a relational database system developed for managing the operations of a nonprofit soccer club.
@@ -96,6 +76,27 @@ The repository contains the following files:
 
 
 ## ER Diagram
+# Entity Relationship Diagram
+
+
+The database conceptual design was created using PlantUML.
+
+The ER diagram represents:
+
+- Entities
+- Attributes
+- Primary keys
+- Foreign keys
+- Relationship constraints
+
+
+![CSCS ER Diagram](ER_Diagram/CSCS_ER_Diagram.png)
+
+
+Source file:
+
+
+ER_Diagram/CSCS_ER_Diagram.puml
 
 Location:
 
