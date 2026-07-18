@@ -11,10 +11,10 @@
 
 | Name | Student ID | 
 | :--- | :--- | 
-|  |  | 
-|  |  | 
-|  |  | 
-|  |  | 
+| Aaida Hossain |  | 
+| Chunru Qiu | 40283505 | 
+| Jingyuan zhang |  | 
+| Yuqian Cai |  | 
 ---
 
 # 1. Project Description
