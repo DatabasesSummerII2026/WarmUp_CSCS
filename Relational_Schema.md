@@ -7,521 +7,133 @@
 
 
 ---
+**CSCS Relational Schema**
 
-# 1. Locations Relation
+1\. **Locations**(<ins>locationID</ins>, name, type, address, city, province, postalCode, phoneNumber, webAddress, capacity, managerPersonnelID)
 
+**Constraints:**
 
-## Description
+• Foreign key: managerPersonnelID references Personnel(personnelID)
 
-Stores information about the club head office and all branch locations.
+• Unique: managerPersonnelID
 
 
-## Attributes
+2\. **Personnel**(<ins>personnelID</ins>, firstName, lastName, dateOfBirth, SSN, MedicareNo, telephone, address, city, province, postalCode, email, role, mandate)
 
+**Constraints:**
 
-| Attribute | Data Type | Constraint |
-|---|---|---|
-| LocationID | INT | Primary Key |
-| Name | VARCHAR(100) | NOT NULL |
-| Type | ENUM | Head / Branch |
-| Address | VARCHAR(150) | |
-| City | VARCHAR(50) | |
-| Province | VARCHAR(50) | |
-| PostalCode | VARCHAR(10) | |
-| Phone | VARCHAR(20) | |
-| WebAddress | VARCHAR(100) | |
-| Capacity | INT | |
+• Unique: SSN (not Null),MedicareNo
 
 
-## Relational Schema
+3\. **WorksAt**(<ins>personnelID</ins>, <ins>locationID</ins>, <ins>startDate</ins>, endDate)
 
+**Constraints:**
 
-```
-Locations(
-    LocationID PK,
-    Name,
-    Type,
-    Address,
-    City,
-    Province,
-    PostalCode,
-    Phone,
-    WebAddress,
-    Capacity
-)
-```
+• Foreign key: personnelID references Personnel(personnelID)
 
----
+• Foreign key: locationID references Locations(locationID)
 
-# 2. Personnel Relation
 
+4\. **FamilyMembers**(<ins>familyMemberID</ins>, firstName, lastName, dateOfBirth, SSN, MedicareNo, telephone, address, city, province, postalCode, email)
 
-## Description
+**Constraints:**
 
-Stores information about all personnel working for the club.
+• Unique: SSN, MedicareNo
 
 
-## Attributes
+5\. **FamilyAssignment**(<ins>familyMemberID</ins>, <ins>locationID</ins>, <ins>startDate</ins>, endDate)
 
+**Constraints:**
 
-| Attribute | Data Type | Constraint |
-|---|---|---|
-| PersonnelID | INT | Primary Key |
-| FirstName | VARCHAR(50) | |
-| LastName | VARCHAR(50) | |
-| DOB | DATE | |
-| SSN | VARCHAR(20) | UNIQUE, NOT NULL |
-| MedicareNo | VARCHAR(20) | UNIQUE |
-| Phone | VARCHAR(20) | |
-| Email | VARCHAR(100) | |
-| Address | VARCHAR(150) | |
-| City | VARCHAR(50) | |
-| Province | VARCHAR(50) | |
-| PostalCode | VARCHAR(10) | |
-| Role | ENUM | |
-| Mandate | ENUM | Volunteer / Salaried |
+• Foreign key: familyMemberID references FamilyMembers(familyMemberID)
 
+• Foreign key: locationID references Locations(locationID)
 
-## Relational Schema
 
+6\. **ClubMembers**(<ins>membershipNo</ins>, firstName, lastName, dateOfBirth, height, weight, SSN, MedicareNo, telephone, address, city, province, postalCode, registrationDate)
 
-```
-Personnel(
-    PersonnelID PK,
-    FirstName,
-    LastName,
-    DOB,
-    SSN UNIQUE,
-    MedicareNo UNIQUE,
-    Phone,
-    Email,
-    Address,
-    City,
-    Province,
-    PostalCode,
-    Role,
-    Mandate
-)
-```
+**Constraints:**
 
----
+• Unique: SSN, MedicareNo
 
-# 3. Personnel_Assignment Relation
+• membershipNo is globally unique and auto-incremented
 
 
-## Description
+7\. **MajorMembers**(<ins>membershipNo</ins>)
 
-Maintains the history of personnel working at different locations.
+**Constraints:**
 
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
-## Attributes
 
+8\. **MinorMembers**(<ins>membershipNo</ins>)
 
-| Attribute | Data Type | Constraint |
-|-|-|-|
-| AssignmentID | INT | Primary Key |
-| PersonnelID | INT | Foreign Key |
-| LocationID | INT | Foreign Key |
-| StartDate | DATE | |
-| EndDate | DATE | Nullable |
+**Constraints:**
 
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
-## Relational Schema
 
+9\. **MemberAssignment**(<ins>membershipNo</ins>, locationID, startDate, endDate)
 
-```
-Personnel_Assignment(
-    AssignmentID PK,
-    PersonnelID FK,
-    LocationID FK,
-    StartDate,
-    EndDate
-)
-```
+**Constraints:**
 
----
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
-# 4. ClubMembers Relation
+• Foreign key: locationID references Locations(locationID)
 
 
-## Description
+10\. **ResponsibleFor**(<ins>familyMemberID</ins>, <ins>minorMembershipNo</ins>, <ins>startDate</ins>, endDate, relationshipType)
 
-Stores all major and minor club members.
+**Constraints:**
 
+• Foreign key: familyMemberID references FamilyMembers(familyMemberID)
 
-## Attributes
+• Foreign key: minorMembershipNo references MinorMembers(membershipNo)
 
 
-| Attribute | Data Type | Constraint |
-|-|-|-|
-| MemberID | INT | Primary Key |
-| FirstName | VARCHAR(50) | |
-| LastName | VARCHAR(50) | |
-| DOB | DATE | Age >= 4 |
-| Height | FLOAT | |
-| Weight | FLOAT | |
-| SSN | VARCHAR(20) | UNIQUE |
-| MedicareNo | VARCHAR(20) | UNIQUE |
-| Phone | VARCHAR(20) | |
-| Address | VARCHAR(150) | |
-| City | VARCHAR(50) | |
-| Province | VARCHAR(50) | |
-| PostalCode | VARCHAR(10) | |
-| MemberType | ENUM | Major / Minor |
+11\. **Hobbies**(<ins>hobbyID</ins>, hobbyName)
 
+**Constraints:**
 
-## Relational Schema
+• Unique: hobbyName
 
 
-```
-ClubMembers(
-    MemberID PK,
-    FirstName,
-    LastName,
-    DOB,
-    Height,
-    Weight,
-    SSN UNIQUE,
-    MedicareNo UNIQUE,
-    Phone,
-    Address,
-    City,
-    Province,
-    PostalCode,
-    MemberType
-)
-```
+12\. **HasHobby**(<ins>membershipNo</ins>, <ins>hobbyID</ins>)
 
----
+**Constraints:**
 
-# 5. Member_Location_History Relation
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
+• Foreign key: hobbyID references Hobbies(hobbyID)
 
-## Description
 
-Tracks the movement of club members between different locations.
+13\. **Payments**(<ins>paymentID</ins>, membershipNo, amount, paymentDate, paymentMethod, membershipYear, installmentNumber)
 
+**Constraints:**
 
-## Relational Schema
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
+• Unique: installmentNumber
 
-```
-Member_Location_History(
-    HistoryID PK,
-    MemberID FK,
-    LocationID FK,
-    StartDate,
-    EndDate
-)
-```
 
----
+14\. **FIFA_Games**(<ins>gameID</ins>, gameLocation, clubScore, opponentScore, gameDate, opponentTeam)
 
-# 6. FamilyMembers Relation
 
+15\. **Teams**(<ins>teamID</ins>, teamName, genderCategory, locationID)
 
-## Description
+**Constraints:**
 
-Stores parents, guardians and other family members.
+• Foreign key: locationID references Locations(locationID)
 
 
-## Relational Schema
+16\. **ParticipatesIn**(<ins>membershipNo</ins>, <ins>gameID</ins>, <ins>teamID</ins>)
 
+**Constraints:**
 
-```
-FamilyMembers(
-    FamilyID PK,
-    FirstName,
-    LastName,
-    DOB,
-    SSN UNIQUE,
-    MedicareNo UNIQUE,
-    Phone,
-    Email,
-    Address,
-    City,
-    Province,
-    PostalCode
-)
-```
+• Foreign key: membershipNo references ClubMembers(membershipNo)
 
----
+• Foreign key: gameID references FIFA_Games(gameID)
 
-# 7. Family_Location_History Relation
+• Foreign key: teamID references Teams(teamID)
 
-
-## Description
-
-Tracks family members associated with different locations over time.
-
-
-## Relational Schema
-
-
-```
-Family_Location_History(
-    HistoryID PK,
-    FamilyID FK,
-    LocationID FK,
-    StartDate,
-    EndDate
-)
-```
-
----
-
-# 8. FamilyRelationship Relation
-
-
-## Description
-
-Maintains relationship between family members and minor club members.
-
-
-## Attributes
-
-
-| Attribute | Constraint |
-|-|-|
-| FamilyID | PK, FK |
-| MemberID | PK, FK |
-| StartDate | PK |
-| EndDate | |
-| RelationshipType | |
-
-
-## Relational Schema
-
-
-```
-FamilyRelationship(
-    FamilyID PK FK,
-    MemberID PK FK,
-    StartDate PK,
-    EndDate,
-    RelationshipType
-)
-```
-
-
-RelationshipType values:
-
-
-```
-Father
-Mother
-Grandfather
-Grandmother
-Tutor
-Partner
-Friend
-Other
-```
-
----
-
-# 9. Hobbies Relation
-
-
-## Relational Schema
-
-
-```
-Hobbies(
-    HobbyID PK,
-    HobbyName
-)
-```
-
----
-
-# 10. Member_Hobby Relation
-
-
-## Description
-
-Resolves many-to-many relationship between members and hobbies.
-
-
-## Relational Schema
-
-
-```
-Member_Hobby(
-    MemberID PK FK,
-    HobbyID PK FK
-)
-```
-
----
-
-# 11. Payments Relation
-
-
-## Description
-
-Stores all membership payments and possible donations.
-
-
-## Relational Schema
-
-
-```
-Payments(
-    PaymentID PK,
-    PaymentDate,
-    Amount,
-    Method,
-    MembershipYear,
-    MemberID FK
-)
-```
-
-
-Payment Method:
-
-
-```
-Cash
-Debit
-Credit Card
-```
-
----
-
-# 12. Teams Relation
-
-
-## Description
-
-Stores Boys and Girls soccer teams.
-
-
-## Relational Schema
-
-
-```
-Teams(
-    TeamID PK,
-    TeamName,
-    Gender,
-    LocationID FK
-)
-```
-
-
-Gender:
-
-
-```
-Boys
-Girls
-```
-
----
-
-# 13. Team_Members Relation
-
-
-## Description
-
-Stores the history of members joining teams.
-
-
-## Relational Schema
-
-
-```
-Team_Members(
-    TeamID PK FK,
-    MemberID PK FK,
-    StartDate,
-    EndDate
-)
-```
-
----
-
-# 14. FIFA_Games Relation
-
-
-## Description
-
-Stores FIFA game information.
-
-
-## Relational Schema
-
-
-```
-FIFA_Games(
-    GameID PK,
-    GameDate,
-    LocationID FK,
-    OpponentTeam,
-    Score
-)
-```
-
----
-
-# 15. Game_Participation Relation
-
-
-## Description
-
-Records members participating in FIFA games.
-
-
-## Relational Schema
-
-
-```
-Game_Participation(
-    MemberID PK FK,
-    GameID PK FK,
-    TeamID FK
-)
-```
-
----
-
-# Relationship Mapping Summary
-
-
-| Relationship | Mapping |
-|-|-|
-| Locations - ClubMembers | 1:N through Member_Location_History |
-| Locations - Personnel | 1:N through Personnel_Assignment |
-| Locations - FamilyMembers | 1:N through Family_Location_History |
-| FamilyMembers - ClubMembers | M:N through FamilyRelationship |
-| ClubMembers - Hobbies | M:N through Member_Hobby |
-| ClubMembers - Payments | 1:N |
-| Locations - Teams | 1:N |
-| ClubMembers - Teams | M:N through Team_Members |
-| ClubMembers - FIFA_Games | M:N through Game_Participation |
-| Teams - FIFA_Games | 1:N |
-
-
----
-
-# Total Relations
-
-The CSCS database contains the following relations:
-
-1. Locations  
-2. Personnel  
-3. Personnel_Assignment  
-4. ClubMembers  
-5. Member_Location_History  
-6. FamilyMembers  
-7. Family_Location_History  
-8. FamilyRelationship  
-9. Hobbies  
-10. Member_Hobby  
-11. Payments  
-12. Teams  
-13. Team_Members  
-14. FIFA_Games  
-15. Game_Participation  
-
+• Unique: (membershipNo, gameID)
