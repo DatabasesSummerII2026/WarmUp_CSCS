@@ -14,7 +14,7 @@
 | Aaida Hossain |  | 
 | Chunru Qiu | 40283505 | 
 | Jingyuan zhang | 40257596 | 
-| Yuqian Cai |  | 
+| Yuqian Cai | 40187954  | 
 ---
 
 # 1. Project Description
