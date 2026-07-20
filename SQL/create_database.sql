@@ -1,488 +1,246 @@
-DROP DATABASE IF EXISTS CSCS;
+USE wec353_1;
 
-CREATE DATABASE CSCS;
-
-USE CSCS;
-
-
--- =====================================
--- 1. Locations
--- =====================================
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Game_Participation, FIFA_Games, Team_Members, Teams,
+                     Payments, Member_Hobby, FamilyRelationship,
+                     Family_Location_History, Member_Location_History,
+                     Personnel_Assignment, Hobbies, FamilyMembers,
+                     ClubMembers, Personnel, Locations;
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE Locations
 (
-    LocationID INT AUTO_INCREMENT,
-
-    Name VARCHAR(100) NOT NULL,
-
-    Type ENUM('Head','Branch') NOT NULL,
-
-    Address VARCHAR(150),
-
-    City VARCHAR(50),
-
-    Province VARCHAR(50),
-
-    PostalCode VARCHAR(10),
-
-    Phone VARCHAR(20),
-
-    WebAddress VARCHAR(100),
-
-    Capacity INT,
-
-    PRIMARY KEY(LocationID)
+    LocationID  INT AUTO_INCREMENT,
+    Name        VARCHAR(100) NOT NULL,
+    Type        ENUM('Head','Branch') NOT NULL,
+    Address     VARCHAR(150),
+    City        VARCHAR(50),
+    Province    VARCHAR(50),
+    PostalCode  VARCHAR(10),
+    Phone       VARCHAR(20),
+    WebAddress  VARCHAR(100),
+    Capacity    INT,
+    ManagerID   INT,                
+    PRIMARY KEY (LocationID),
+    UNIQUE (ManagerID)               
 );
 
-
-
--- =====================================
--- 2. Personnel
--- =====================================
 
 CREATE TABLE Personnel
 (
     PersonnelID INT AUTO_INCREMENT,
+    FirstName   VARCHAR(50),
+    LastName    VARCHAR(50),
+    DOB         DATE,
+    SSN         VARCHAR(20) NOT NULL UNIQUE,   -- SSN cannot be null, no duplicates
+    MedicareNo  VARCHAR(20) UNIQUE,            -- no two personnel share a Medicare number
+    Phone       VARCHAR(20),
+    Email       VARCHAR(100),
+    Address     VARCHAR(150),
+    City        VARCHAR(50),
+    Province    VARCHAR(50),
+    PostalCode  VARCHAR(10),
+    Role        ENUM('Administrator','Captain','Coach','Assistant Coach','Other'),
+    Mandate     ENUM('Volunteer','Salaried'),
 
-    FirstName VARCHAR(50),
-
-    LastName VARCHAR(50),
-
-    DOB DATE,
-
-    SSN VARCHAR(20) NOT NULL UNIQUE,
-
-    MedicareNo VARCHAR(20) UNIQUE,
-
-    Phone VARCHAR(20),
-
-    Email VARCHAR(100),
-
-    Address VARCHAR(150),
-
-    City VARCHAR(50),
-
-    Province VARCHAR(50),
-
-    PostalCode VARCHAR(10),
-
-    Role ENUM(
-        'Administrator',
-        'Captain',
-        'Coach',
-        'Assistant Coach',
-        'Other'
-    ),
-
-    Mandate ENUM(
-        'Volunteer',
-        'Salaried'
-    ),
-
-    PRIMARY KEY(PersonnelID)
+    PRIMARY KEY (PersonnelID)
 );
 
-
-
--- =====================================
--- 3. ClubMembers
--- =====================================
+ALTER TABLE Locations
+    ADD CONSTRAINT fk_location_manager
+    FOREIGN KEY (ManagerID) REFERENCES Personnel(PersonnelID);
 
 CREATE TABLE ClubMembers
 (
-    MemberID INT AUTO_INCREMENT,
+    MemberID         INT AUTO_INCREMENT,      
+    FirstName        VARCHAR(50),
+    LastName         VARCHAR(50),
+    DOB              DATE NOT NULL,
+    Height           FLOAT,
+    Weight           FLOAT,
+    SSN              VARCHAR(20) UNIQUE,
+    MedicareNo       VARCHAR(20) UNIQUE,
+    Phone            VARCHAR(20),
+    Address          VARCHAR(150),
+    City             VARCHAR(50),
+    Province         VARCHAR(50),
+    PostalCode       VARCHAR(10),
+    RegistrationDate DATE NOT NULL,
+    MemberType       ENUM('Major','Minor') NOT NULL,
 
-    FirstName VARCHAR(50),
+    PRIMARY KEY (MemberID),
 
-    LastName VARCHAR(50),
-
-    DOB DATE,
-
-    Height FLOAT,
-
-    Weight FLOAT,
-
-    SSN VARCHAR(20) UNIQUE,
-
-    MedicareNo VARCHAR(20) UNIQUE,
-
-    Phone VARCHAR(20),
-
-    Address VARCHAR(150),
-
-    City VARCHAR(50),
-
-    Province VARCHAR(50),
-
-    PostalCode VARCHAR(10),
-
-    MemberType ENUM(
-        'Major',
-        'Minor'
-    ) NOT NULL,
-
-
-    PRIMARY KEY(MemberID)
+    -- a new member must be at least 4 years old at registration
+    CHECK (RegistrationDate >= DATE_ADD(DOB, INTERVAL 4 YEAR))
 );
-
-
-
--- =====================================
--- 4. FamilyMembers
--- =====================================
 
 CREATE TABLE FamilyMembers
 (
-    FamilyID INT AUTO_INCREMENT,
-
-    FirstName VARCHAR(50),
-
-    LastName VARCHAR(50),
-
-    DOB DATE,
-
-    SSN VARCHAR(20) UNIQUE,
-
+    FamilyID   INT AUTO_INCREMENT,
+    FirstName  VARCHAR(50),
+    LastName   VARCHAR(50),
+    DOB        DATE,
+    SSN        VARCHAR(20) UNIQUE,
     MedicareNo VARCHAR(20) UNIQUE,
-
-    Phone VARCHAR(20),
-
-    Email VARCHAR(100),
-
-    Address VARCHAR(150),
-
-    City VARCHAR(50),
-
-    Province VARCHAR(50),
-
+    Phone      VARCHAR(20),
+    Email      VARCHAR(100),
+    Address    VARCHAR(150),
+    City       VARCHAR(50),
+    Province   VARCHAR(50),
     PostalCode VARCHAR(10),
 
-
-    PRIMARY KEY(FamilyID)
+    PRIMARY KEY (FamilyID)
 );
 
-
-
--- =====================================
--- 5. Hobbies
--- =====================================
 
 CREATE TABLE Hobbies
 (
-    HobbyID INT AUTO_INCREMENT,
+    HobbyID   INT AUTO_INCREMENT,
+    HobbyName VARCHAR(50) NOT NULL UNIQUE,
 
-    HobbyName VARCHAR(50) NOT NULL,
-
-
-    PRIMARY KEY(HobbyID)
+    PRIMARY KEY (HobbyID)
 );
-
-
-
--- =====================================
--- 6. Personnel Assignment
--- =====================================
 
 CREATE TABLE Personnel_Assignment
 (
-    AssignmentID INT AUTO_INCREMENT,
-
     PersonnelID INT,
+    LocationID  INT,
+    StartDate   DATE,
+    EndDate     DATE,                -- NULL==still active at the location
 
-    LocationID INT,
+    PRIMARY KEY (PersonnelID, LocationID, StartDate),
 
-    StartDate DATE,
-
-    EndDate DATE,
-
-
-    PRIMARY KEY(AssignmentID),
-
-
-    FOREIGN KEY(PersonnelID)
-    REFERENCES Personnel(PersonnelID),
-
-
-    FOREIGN KEY(LocationID)
-    REFERENCES Locations(LocationID)
+    FOREIGN KEY (PersonnelID) REFERENCES Personnel(PersonnelID),
+    FOREIGN KEY (LocationID)  REFERENCES Locations(LocationID)
 );
 
-
-
--- =====================================
--- 7. Member Location History
--- =====================================
 
 CREATE TABLE Member_Location_History
 (
-    HistoryID INT AUTO_INCREMENT,
-
-    MemberID INT,
-
+    MemberID   INT,
     LocationID INT,
+    StartDate  DATE,
+    EndDate    DATE,                 -- NULL means current location
 
-    StartDate DATE,
+    PRIMARY KEY (MemberID, LocationID, StartDate),
 
-    EndDate DATE,
-
-
-    PRIMARY KEY(HistoryID),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID),
-
-
-    FOREIGN KEY(LocationID)
-    REFERENCES Locations(LocationID)
+    FOREIGN KEY (MemberID)   REFERENCES ClubMembers(MemberID),
+    FOREIGN KEY (LocationID) REFERENCES Locations(LocationID)
 );
 
-
-
--- =====================================
--- 8. Family Location History
--- =====================================
 
 CREATE TABLE Family_Location_History
 (
-    HistoryID INT AUTO_INCREMENT,
-
-    FamilyID INT,
-
+    FamilyID   INT,
     LocationID INT,
+    StartDate  DATE,
+    EndDate    DATE,                 -- NULL means current location
 
-    StartDate DATE,
+    PRIMARY KEY (FamilyID, LocationID, StartDate),
 
-    EndDate DATE,
-
-
-    PRIMARY KEY(HistoryID),
-
-
-    FOREIGN KEY(FamilyID)
-    REFERENCES FamilyMembers(FamilyID),
-
-
-    FOREIGN KEY(LocationID)
-    REFERENCES Locations(LocationID)
+    FOREIGN KEY (FamilyID)   REFERENCES FamilyMembers(FamilyID),
+    FOREIGN KEY (LocationID) REFERENCES Locations(LocationID)
 );
 
-
-
--- =====================================
--- 9. Family Relationship
--- =====================================
 
 CREATE TABLE FamilyRelationship
 (
-    FamilyID INT,
+    FamilyID         INT,
+    MemberID         INT,
+    StartDate        DATE,
+    EndDate          DATE,           -- NULL means current association
+    RelationshipType ENUM('Father','Mother','Grandfather','Grandmother',
+                          'Tutor','Partner','Friend','Other'),
 
-    MemberID INT,
+    PRIMARY KEY (FamilyID, MemberID, StartDate),
 
-    StartDate DATE,
-
-    EndDate DATE,
-
-    RelationshipType ENUM(
-        'Father',
-        'Mother',
-        'Grandfather',
-        'Grandmother',
-        'Tutor',
-        'Partner',
-        'Friend',
-        'Other'
-    ),
-
-
-    PRIMARY KEY(
-        FamilyID,
-        MemberID,
-        StartDate
-    ),
-
-
-    FOREIGN KEY(FamilyID)
-    REFERENCES FamilyMembers(FamilyID),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID)
+    FOREIGN KEY (FamilyID) REFERENCES FamilyMembers(FamilyID),
+    FOREIGN KEY (MemberID) REFERENCES ClubMembers(MemberID)
 );
 
-
-
--- =====================================
--- 10. Member Hobby
--- =====================================
 
 CREATE TABLE Member_Hobby
 (
     MemberID INT,
+    HobbyID  INT,
 
-    HobbyID INT,
+    PRIMARY KEY (MemberID, HobbyID),
 
-
-    PRIMARY KEY(
-        MemberID,
-        HobbyID
-    ),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID),
-
-
-    FOREIGN KEY(HobbyID)
-    REFERENCES Hobbies(HobbyID)
+    FOREIGN KEY (MemberID) REFERENCES ClubMembers(MemberID),
+    FOREIGN KEY (HobbyID)  REFERENCES Hobbies(HobbyID)
 );
 
-
-
--- =====================================
--- 11. Payments
--- =====================================
 
 CREATE TABLE Payments
 (
-    PaymentID INT AUTO_INCREMENT,
+    PaymentID         INT AUTO_INCREMENT,
+    MemberID          INT NOT NULL,
+    PaymentDate       DATE,
+    Amount            DECIMAL(10,2) NOT NULL,
+    Method            ENUM('Cash','Debit','Credit Card'),
+    MembershipYear    INT NOT NULL,
+    InstallmentNumber TINYINT NOT NULL DEFAULT 1,
 
-    PaymentDate DATE,
+    PRIMARY KEY (PaymentID),
 
-    Amount DECIMAL(10,2),
+    FOREIGN KEY (MemberID) REFERENCES ClubMembers(MemberID),
 
-    Method ENUM(
-        'Cash',
-        'Debit',
-        'Credit Card'
-    ),
-
-    MembershipYear INT,
-
-    MemberID INT,
-
-
-    PRIMARY KEY(PaymentID),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID)
+    -- payments in at most 4 installments per membership year
+    CHECK (InstallmentNumber BETWEEN 1 AND 4),
+    UNIQUE (MemberID, MembershipYear, InstallmentNumber)
 );
 
-
-
--- =====================================
--- 12. Teams
--- =====================================
 
 CREATE TABLE Teams
 (
-    TeamID INT AUTO_INCREMENT,
-
-    TeamName VARCHAR(100),
-
-    Gender ENUM(
-        'Boys',
-        'Girls'
-    ),
-
-
+    TeamID     INT AUTO_INCREMENT,
+    TeamName   VARCHAR(100),
+    Gender     ENUM('Boys','Girls'),
     LocationID INT,
 
+    PRIMARY KEY (TeamID),
 
-    PRIMARY KEY(TeamID),
-
-
-    FOREIGN KEY(LocationID)
-    REFERENCES Locations(LocationID)
+    FOREIGN KEY (LocationID) REFERENCES Locations(LocationID)
 );
 
-
-
--- =====================================
--- 13. Team Members
--- =====================================
 
 CREATE TABLE Team_Members
 (
-    TeamID INT,
-
-    MemberID INT,
-
+    TeamID    INT,
+    MemberID  INT,
     StartDate DATE,
+    EndDate   DATE,
 
-    EndDate DATE,
+    PRIMARY KEY (TeamID, MemberID),
 
-
-    PRIMARY KEY(
-        TeamID,
-        MemberID
-    ),
-
-
-    FOREIGN KEY(TeamID)
-    REFERENCES Teams(TeamID),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID)
+    FOREIGN KEY (TeamID)   REFERENCES Teams(TeamID),
+    FOREIGN KEY (MemberID) REFERENCES ClubMembers(MemberID)
 );
 
-
-
--- =====================================
--- 14. FIFA Games
--- =====================================
 
 CREATE TABLE FIFA_Games
 (
-    GameID INT AUTO_INCREMENT,
-
-    GameDate DATE,
-
-    LocationID INT,
-
+    GameID       INT AUTO_INCREMENT,
+    GameDate     DATE,
+    LocationID   INT,                
     OpponentTeam VARCHAR(100),
+    Score        VARCHAR(20),        
 
-    Score VARCHAR(20),
+    PRIMARY KEY (GameID),
 
-
-    PRIMARY KEY(GameID),
-
-
-    FOREIGN KEY(LocationID)
-    REFERENCES Locations(LocationID)
+    FOREIGN KEY (LocationID) REFERENCES Locations(LocationID)
 );
 
-
-
--- =====================================
--- 15. Game Participation
--- =====================================
 
 CREATE TABLE Game_Participation
 (
     MemberID INT,
+    GameID   INT,
+    TeamID   INT,                   
 
-    GameID INT,
+    PRIMARY KEY (MemberID, GameID),  
 
-    TeamID INT,
-
-
-    PRIMARY KEY(
-        MemberID,
-        GameID
-    ),
-
-
-    FOREIGN KEY(MemberID)
-    REFERENCES ClubMembers(MemberID),
-
-
-    FOREIGN KEY(GameID)
-    REFERENCES FIFA_Games(GameID),
-
-
-    FOREIGN KEY(TeamID)
-    REFERENCES Teams(TeamID)
+    FOREIGN KEY (MemberID) REFERENCES ClubMembers(MemberID),
+    FOREIGN KEY (GameID)   REFERENCES FIFA_Games(GameID),
+    FOREIGN KEY (TeamID)   REFERENCES Teams(TeamID)
 );

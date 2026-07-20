@@ -1,90 +1,37 @@
--- Query viii
+-- Query viii: club members who played in at least four different FIFA games
+USE wec353_1;
 
-USE CSCS;
 SELECT
+    L.Name AS Location_Name,
+    CM.MemberID,
+    CM.FirstName,
+    CM.LastName,
+    TIMESTAMPDIFF(YEAR, CM.DOB, CURDATE()) AS Age,
+    CM.City,
+    CM.Province,
 
+    CASE
+        WHEN (SELECT COALESCE(SUM(P.Amount), 0)
+              FROM Payments P
+              WHERE P.MemberID = CM.MemberID
+                AND P.MembershipYear = YEAR(CURDATE()) - 1)
+             >= (CASE WHEN CM.MemberType = 'Major' THEN 200 ELSE 100 END)
+        THEN 'Active'
+        ELSE 'Inactive'
+    END AS Status,
 
-L.Name AS Location_Name,
-
-
-CM.MemberID,
-
-
-CM.FirstName,
-
-
-CM.LastName,
-
-
-TIMESTAMPDIFF(
-YEAR,
-CM.DOB,
-CURDATE()
-)
-
-AS Age,
-
-
-CM.City,
-
-CM.Province,
-
-
-'Active' AS Status,
-
-
-COUNT(GP.GameID)
-
-AS Total_FIFA_Games
-
-
+    COUNT(DISTINCT GP.GameID) AS Total_FIFA_Games
 
 FROM ClubMembers CM
-
-
-
 JOIN Member_Location_History MLH
-
-ON CM.MemberID = MLH.MemberID
-
-
-
+     ON CM.MemberID = MLH.MemberID AND MLH.EndDate IS NULL
 JOIN Locations L
-
-ON MLH.LocationID = L.LocationID
-
-
-
+     ON MLH.LocationID = L.LocationID
 JOIN Game_Participation GP
+     ON CM.MemberID = GP.MemberID
 
-ON CM.MemberID = GP.MemberID
+GROUP BY CM.MemberID, L.Name
 
+HAVING COUNT(DISTINCT GP.GameID) >= 4
 
-
-GROUP BY
-
-L.Name,
-
-CM.MemberID,
-
-CM.FirstName,
-
-CM.LastName,
-
-CM.DOB,
-
-CM.City,
-
-CM.Province
-
-
-
-HAVING COUNT(GP.GameID)>=4
-
-
-
-ORDER BY
-
-Location_Name ASC,
-
-Age ASC;
+ORDER BY Location_Name ASC, Age ASC;
