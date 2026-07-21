@@ -96,9 +96,7 @@ The ER diagram represents:
 - Relationship constraints
 
 
-<p center>
-  <img src="ER_Diagram/Conceptual%20ER%20Diagram.png" alt="CSCS ER Diagram" width="100%" />
-</p>
+![CSCS ER Diagram](ER-diagrm.png)
 
 
 Location:
