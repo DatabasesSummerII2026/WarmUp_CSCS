@@ -1,1 +1,1002 @@
 
+\documentclass[11pt,a4paper]{article}
+
+%================================================
+% Packages
+%================================================
+
+\usepackage{array}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+
+%================================================
+% Color Scheme
+%================================================
+
+\definecolor{primary}{RGB}{30,41,59}
+\definecolor{secondary}{RGB}{71,85,105}
+\definecolor{accent}{RGB}{2,132,199}
+
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=accent
+}
+
+
+\titleformat{\section}
+{\color{primary}\normalfont\Large\bfseries}
+{\thesection}{1em}{}[\color{secondary}\titlerule]
+
+
+\titleformat{\subsection}
+{\color{secondary}\normalfont\large\bfseries}
+{\thesubsection}{1em}{}
+
+
+\setlist[itemize]{leftmargin=*}
+
+
+%================================================
+% Document
+%================================================
+
+\begin{document}
+
+
+
+%================================================
+% Title
+%================================================
+
+
+\begin{center}
+
+
+{\LARGE\bfseries\color{primary}
+Country Soccer Club System (CSCS)
+}
+\\[0.4cm]
+
+
+{\large\color{secondary}
+Database Design, Implementation, and Query Processing
+}
+\\[0.5cm]
+
+
+{\large
+COMP 353 -- Databases Project Report
+}
+
+
+\vspace{0.5cm}
+
+
+{\large
+Summer 2026
+}
+
+
+\end{center}
+
+
+
+%------------------------------------------------
+% Team Information
+%------------------------------------------------
+
+\section*{Administrative \& Team Information}
+
+
+\begin{minipage}{0.45\textwidth}
+
+\textbf{Course:} COMP 353 CC 1151\\
+\textbf{Project:} CSCS Database Application\\
+\textbf{Repository:}
+\href{https://github.com/DatabasesSummerII2026/WarmUp_CSCS}
+{WarmUpCSCS}
+
+\end{minipage}
+\hfill
+\begin{minipage}{0.5\textwidth}
+
+\begin{tabular}{ll}
+\toprule
+Name & Student ID\\
+\midrule
+Aaida Hossain & 40281796\\
+Chunru Qiu & 40283505\\
+Jingyuan Zhang & 40257596 \\
+Yuqian Cai & 40187954\\
+
+\bottomrule
+\end{tabular}
+
+\end{minipage}
+
+
+%================================================
+\section{Executive Summary}
+%================================================
+
+
+The Country Soccer Club System (CSCS) is a relational database
+application developed to support the management activities of a
+non-profit soccer organization.
+
+
+The purpose of this project is to design and implement a database system
+capable of managing club locations, personnel, members, family
+relationships, teams, hobbies, financial payments, and FIFA game
+participation records.
+
+
+The system supports both major and minor club members using a unified
+single-table inheritance model. Major members are members who are at
+least 18 years old, while minor members (ages 4--17) require association with
+registered family members or guardians. The database maintains membership
+information, location movement history, family relationships, and player
+development information over time.
+
+
+The project follows a complete database development process, including
+Entity-Relationship (E/R) modeling, relational schema conversion,
+database implementation using MySQL, data population, and SQL query
+development.
+
+
+A total of fifteen relational tables were designed to represent the
+exact specification requirements of the Country Soccer Club System. The design
+applies database normalization principles, temporal composite primary key
+structures, domain restrictions, and integrity rules to ensure data consistency.
+
+
+The final database provides support for complex queries involving member
+statistics, FIFA game participation, multi-installment payment analysis,
+hobby tracking, and location-based administrative reports.
+
+
+
+%================================================
+\section{Introduction}
+%================================================
+
+
+The Country Soccer Club is a non-profit organization dedicated to
+developing, promoting, and enhancing soccer activities for players aged
+four years and above.
+
+
+As the organization expands, managing information manually becomes
+increasingly difficult. The club requires a centralized database system
+to maintain accurate information about members, employees, locations,
+teams, financial activities, and game participation.
+
+
+The objective of this project is to develop a database application that
+can support the operational requirements of the Country Soccer Club
+System (CSCS).
+
+
+The database must maintain information about:
+
+
+\begin{itemize}
+
+
+\item Club headquarters (Head) and branch locations, including manager assignments.
+
+
+\item Personnel working at different locations over time with specific roles and mandates.
+
+
+\item Major and minor club members, including registration age enforcement.
+
+
+\item Family members and guardian relationships.
+
+
+\item Member hobbies and personal information.
+
+
+\item Membership payments, installment tracking, and donation management.
+
+
+\item Soccer teams and FIFA game participation history.
+
+
+\end{itemize}
+
+
+
+The system was designed according to the requirements provided in the
+COMP 353 Database course project specification.
+
+
+The development process consists of several major stages:
+
+
+\begin{itemize}
+
+
+\item Requirement analysis and identification of entities.
+
+
+\item Entity-Relationship model design.
+
+
+\item Conversion from E/R model to relational schema.
+
+
+\item MySQL database implementation.
+
+
+\item Data insertion and validation.
+
+
+\item SQL query formulation and testing.
+
+
+\end{itemize}
+
+
+
+The final system provides a structured and reliable database solution
+that allows the Country Soccer Club to efficiently manage its daily
+operations and support future expansion.
+
+
+%================================================
+\section{System Requirement Analysis}
+%================================================
+
+
+The Country Soccer Club System requirements were analyzed to identify
+the major entities, relationships, constraints, and operational
+requirements of the organization.
+
+
+
+%------------------------------------------------
+\subsection{Location Management}
+
+
+The system maintains information about all club locations.
+
+
+A location can represent:
+
+\begin{itemize}
+
+\item The main headquarters (\texttt{Head}).
+
+\item A branch location (\texttt{Branch}).
+
+\end{itemize}
+
+
+Each location contains a unique ID, name, address details, contact phone,
+website URL, maximum member capacity, and a reference to the managing personnel.
+A personnel member can manage at most one location at a time.
+
+
+
+%------------------------------------------------
+\subsection{Personnel Management}
+
+
+The system maintains information about every employee or volunteer
+working for the club.
+
+
+Personnel information includes personal demographic data, contact info,
+unique SSN, Medicare number, role, and mandate (\texttt{Volunteer} or \texttt{Salaried}).
+
+
+Personnel roles include:
+\texttt{Administrator}, \texttt{Captain}, \texttt{Coach}, \texttt{Assistant Coach}, or \texttt{Other}.
+
+
+A personnel member can work at different locations during different time
+periods. Therefore, a temporal relation (\texttt{Personnel\_Assignment}) with
+\texttt{startDate} and \texttt{endDate} is used to track assignment history.
+
+
+
+%------------------------------------------------
+\subsection{Club Member Management}
+
+
+The system maintains information about all registered club members using a globally
+unique, auto-incremented membership number.
+
+
+Members are classified into:
+
+
+\begin{itemize}
+
+\item \textbf{Major members}: Age 18 or above.
+
+\item \textbf{Minor members}: Age between 4 and 17.
+
+\end{itemize}
+
+
+The database enforces that a member must be at least 4 years old at the time of
+registration (\texttt{registrationDate} $\ge$ \texttt{DOB + 4 years}). Physical metrics
+(height and weight), SSN, Medicare number, and location movement history are tracked.
+
+
+
+%------------------------------------------------
+\subsection{Family Member Management}
+
+
+Minor members must be associated with at least one registered family
+member or guardian.
+
+
+The system maintains family demographics, contact details, and a temporal
+relationship (\texttt{FamilyRelationship}) capturing guardian dynamic associations
+(\texttt{Father}, \texttt{Mother}, \texttt{Grandfather}, \texttt{Grandmother}, \texttt{Tutor}, \texttt{Partner}, \texttt{Friend}, \texttt{Other}).
+
+
+
+%------------------------------------------------
+\subsection{Financial Management}
+
+
+The system tracks all membership payments per member and membership year.
+
+
+Payments can be paid in up to four installments per year. The required annual fee structure is:
+
+
+\begin{table}[H]
+
+\centering
+
+
+\begin{tabular}{cc}
+
+
+\toprule
+
+Member Type & Standard Annual Fee \\
+
+
+\midrule
+
+
+Minor Member & \$100 \\
+
+
+Major Member & \$200 \\
+
+
+\bottomrule
+
+
+\end{tabular}
+
+
+\caption{Annual Membership Fees}
+
+
+\end{table}
+
+
+
+Any total amount paid by a member within a membership year that exceeds the required fee is recorded as a donation. If a member's fee for the preceding year was not fully paid, the member's status is considered inactive.
+
+
+
+%------------------------------------------------
+\subsection{Team and FIFA Game Management}
+
+
+Teams are created at specific locations and categorized by gender (\texttt{Boys} or \texttt{Girls}).
+Members can join teams over specified date intervals. The system tracks official FIFA games,
+including game date, location, opponent team, final score, and player participation.
+
+
+
+
+
+%================================================
+\section{Database Design Decisions}
+%================================================
+
+
+\subsection{Temporal Relationships \& Composite Primary Keys}
+
+To satisfy requirements where entities change locations or roles over time, temporal attributes (\texttt{startDate} and \texttt{endDate}) are embedded into historical tables. The composite primary key includes \texttt{startDate} (e.g., \texttt{(memberID, locationID, startDate)}) to allow a member or personnel to be re-assigned to the same location at different times. A \texttt{NULL} value in \texttt{endDate} signifies an active association.
+
+
+\subsection{Single-Table Inheritance for Members}
+
+Club members (\texttt{Major} and \texttt{Minor}) are implemented in a single table (\texttt{ClubMembers}) using a \texttt{memberType} discriminator column. This simplifies foreign key references in payment and game participation tables while preserving type-specific constraints via check constraints.
+
+
+\subsection{Normalization}
+
+All relations satisfy 3NF (Third Normal Form):
+\begin{itemize}
+\item Every non-key attribute is fully functionally dependent on the primary key.
+\item Transitive dependencies are eliminated (e.g., location manager info is referenced via \texttt{managerID} rather than embedded in \texttt{Locations}).
+\end{itemize}
+
+
+
+
+
+%================================================
+\section{Relational Schema Design}
+%================================================
+
+
+The final CSCS relational schema consists of fifteen normalized relations as defined below. Primary keys are underlined.
+
+
+%------------------------------------------------
+\subsection{Locations}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{locationID} & INT & Primary Key, Auto-Increment \\
+name & VARCHAR(100) & NOT NULL \\
+type & VARCHAR(20) & CHECK (\texttt{Head}, \texttt{Branch}) \\
+address & VARCHAR(255) & \\
+city & VARCHAR(100) & \\
+province & VARCHAR(100) & \\
+postalCode & VARCHAR(20) & \\
+phone & VARCHAR(20) & \\
+webAddress & VARCHAR(255) & \\
+capacity & INT & \\
+managerID & INT & Foreign Key $\rightarrow$ Personnel(personnelID), UNIQUE \\
+\bottomrule
+\end{tabular}
+\caption{Locations Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Personnel}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{personnelID} & INT & Primary Key, Auto-Increment \\
+firstName & VARCHAR(100) & NOT NULL \\
+lastName & VARCHAR(100) & NOT NULL \\
+DOB & DATE & NOT NULL \\
+SSN & VARCHAR(20) & UNIQUE, NOT NULL \\
+MedicareNo & VARCHAR(50) & UNIQUE \\
+phone & VARCHAR(20) & \\
+email & VARCHAR(100) & \\
+address & VARCHAR(255) & \\
+city & VARCHAR(100) & \\
+province & VARCHAR(100) & \\
+postalCode & VARCHAR(20) & \\
+role & VARCHAR(50) & CHECK (\texttt{Administrator}, \texttt{Captain}, \texttt{Coach}, \dots) \\
+mandate & VARCHAR(50) & CHECK (\texttt{Volunteer}, \texttt{Salaried}) \\
+\bottomrule
+\end{tabular}
+\caption{Personnel Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{ClubMembers}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{memberID} & INT & Primary Key, Auto-Increment \\
+firstName & VARCHAR(100) & NOT NULL \\
+lastName & VARCHAR(100) & NOT NULL \\
+DOB & DATE & NOT NULL \\
+height & DECIMAL(5,2) & \\
+weight & DECIMAL(5,2) & \\
+SSN & VARCHAR(20) & UNIQUE, NOT NULL \\
+MedicareNo & VARCHAR(50) & UNIQUE \\
+phone & VARCHAR(20) & \\
+address & VARCHAR(255) & \\
+city & VARCHAR(100) & \\
+province & VARCHAR(100) & \\
+postalCode & VARCHAR(20) & \\
+registrationDate & DATE & NOT NULL, CHECK ($\ge$ DOB + 4 years) \\
+memberType & VARCHAR(10) & CHECK (\texttt{Major}, \texttt{Minor}) \\
+\bottomrule
+\end{tabular}
+\caption{ClubMembers Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{FamilyMembers}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{familyID} & INT & Primary Key, Auto-Increment \\
+firstName & VARCHAR(100) & NOT NULL \\
+lastName & VARCHAR(100) & NOT NULL \\
+DOB & DATE & \\
+SSN & VARCHAR(20) & UNIQUE, NOT NULL \\
+MedicareNo & VARCHAR(50) & UNIQUE \\
+phone & VARCHAR(20) & \\
+email & VARCHAR(100) & \\
+address & VARCHAR(255) & \\
+city & VARCHAR(100) & \\
+province & VARCHAR(100) & \\
+postalCode & VARCHAR(20) & \\
+\bottomrule
+\end{tabular}
+\caption{FamilyMembers Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Hobbies}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{hobbyID} & INT & Primary Key, Auto-Increment \\
+hobbyName & VARCHAR(100) & UNIQUE, NOT NULL \\
+\bottomrule
+\end{tabular}
+\caption{Hobbies Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Personnel\_Assignment}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{personnelID} & INT & Foreign Key $\rightarrow$ Personnel(personnelID) \\
+\underline{locationID} & INT & Foreign Key $\rightarrow$ Locations(locationID) \\
+\underline{startDate} & DATE & Primary Key Part \\
+endDate & DATE & Nullable (NULL = Active) \\
+\bottomrule
+\end{tabular}
+\caption{Personnel Assignment Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Member\_Location\_History}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{memberID} & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+\underline{locationID} & INT & Foreign Key $\rightarrow$ Locations(locationID) \\
+\underline{startDate} & DATE & Primary Key Part \\
+endDate & DATE & Nullable (NULL = Active) \\
+\bottomrule
+\end{tabular}
+\caption{Member Location History Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Family\_Location\_History}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{familyID} & INT & Foreign Key $\rightarrow$ FamilyMembers(familyID) \\
+\underline{locationID} & INT & Foreign Key $\rightarrow$ Locations(locationID) \\
+\underline{startDate} & DATE & Primary Key Part \\
+endDate & DATE & Nullable (NULL = Active) \\
+\bottomrule
+\end{tabular}
+\caption{Family Location History Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{FamilyRelationship}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{familyID} & INT & Foreign Key $\rightarrow$ FamilyMembers(familyID) \\
+\underline{memberID} & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+\underline{startDate} & DATE & Primary Key Part \\
+endDate & DATE & Nullable \\
+relationshipType & VARCHAR(50) & CHECK (\texttt{Father}, \texttt{Mother}, \texttt{Tutor}, \dots) \\
+\bottomrule
+\end{tabular}
+\caption{Family Relationship Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Member\_Hobby}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{memberID} & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+\underline{hobbyID} & INT & Foreign Key $\rightarrow$ Hobbies(hobbyID) \\
+\bottomrule
+\end{tabular}
+\caption{Member Hobby Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Payments}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{paymentID} & INT & Primary Key, Auto-Increment \\
+memberID & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+paymentDate & DATE & NOT NULL \\
+amount & DECIMAL(10,2) & NOT NULL \\
+method & VARCHAR(20) & CHECK (\texttt{Cash}, \texttt{Debit}, \texttt{Credit Card}) \\
+membershipYear & INT & NOT NULL \\
+installmentNumber & INT & CHECK (BETWEEN 1 AND 4) \\
+\bottomrule
+\end{tabular}
+\caption{Payments Relation (UNIQUE on \texttt{(memberID, membershipYear, installmentNumber)})}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Teams}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{teamID} & INT & Primary Key, Auto-Increment \\
+teamName & VARCHAR(100) & NOT NULL \\
+gender & VARCHAR(10) & CHECK (\texttt{Boys}, \texttt{Girls}) \\
+locationID & INT & Foreign Key $\rightarrow$ Locations(locationID) \\
+\bottomrule
+\end{tabular}
+\caption{Teams Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Team\_Members}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{teamID} & INT & Foreign Key $\rightarrow$ Teams(teamID) \\
+\underline{memberID} & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+\underline{startDate} & DATE & Primary Key Part \\
+endDate & DATE & Nullable \\
+\bottomrule
+\end{tabular}
+\caption{Team Members Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{FIFA\_Games}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{gameID} & INT & Primary Key, Auto-Increment \\
+gameDate & DATE & NOT NULL \\
+locationID & INT & Foreign Key $\rightarrow$ Locations(locationID) \\
+opponentTeam & VARCHAR(100) & NOT NULL \\
+score & VARCHAR(20) & \\
+\bottomrule
+\end{tabular}
+\caption{FIFA Games Relation}
+\end{table}
+
+
+%------------------------------------------------
+\subsection{Game\_Participation}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Attribute & Data Type & Constraint \\
+\midrule
+\underline{memberID} & INT & Foreign Key $\rightarrow$ ClubMembers(memberID) \\
+\underline{gameID} & INT & Foreign Key $\rightarrow$ FIFA\_Games(gameID) \\
+teamID & INT & Foreign Key $\rightarrow$ Teams(teamID) \\
+\bottomrule
+\end{tabular}
+\caption{Game Participation Relation}
+\end{table}
+
+
+
+
+
+%================================================
+\section{SQL Query Implementation}
+%================================================
+
+
+The CSCS database supports required operational and reporting queries. Below are the key query implementations updated for the target schema.
+
+
+%------------------------------------------------
+\subsection{Query I: Location Information Report}
+
+Retrieves information for every location, including manager details, count of personnel assigned, active members, and game participants.
+
+\begin{verbatim}
+SELECT 
+    L.locationID,
+    L.name AS LocationName,
+    L.type,
+    CONCAT(P.firstName, ' ', P.lastName) AS ManagerName,
+    COUNT(DISTINCT PA.personnelID) AS TotalPersonnel,
+    COUNT(DISTINCT MLH.memberID) AS TotalMembers
+FROM Locations L
+LEFT JOIN Personnel P ON L.managerID = P.personnelID
+LEFT JOIN Personnel_Assignment PA ON L.locationID = PA.locationID 
+    AND PA.endDate IS NULL
+LEFT JOIN Member_Location_History MLH ON L.locationID = MLH.locationID 
+    AND MLH.endDate IS NULL
+GROUP BY L.locationID, L.name, L.type, ManagerName
+ORDER BY TotalMembers DESC;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query II: Major Members Who Played FIFA Games}
+
+\begin{verbatim}
+SELECT 
+    CM.memberID,
+    CM.firstName,
+    CM.lastName,
+    TIMESTAMPDIFF(YEAR, CM.DOB, CURDATE()) AS Age,
+    COUNT(GP.gameID) AS GamesPlayed
+FROM ClubMembers CM
+JOIN Game_Participation GP ON CM.memberID = GP.memberID
+WHERE CM.memberType = 'Major'
+GROUP BY CM.memberID, CM.firstName, CM.lastName, CM.DOB
+ORDER BY GamesPlayed DESC;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query III: Members With Four Or More Hobbies}
+
+\begin{verbatim}
+SELECT 
+    CM.memberID,
+    CM.firstName,
+    CM.lastName,
+    COUNT(MH.hobbyID) AS HobbyCount
+FROM ClubMembers CM
+JOIN Member_Hobby MH ON CM.memberID = MH.memberID
+GROUP BY CM.memberID, CM.firstName, CM.lastName
+HAVING COUNT(MH.hobbyID) >= 4
+ORDER BY HobbyCount DESC;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query IV: Major Members Without FIFA Participation}
+
+\begin{verbatim}
+SELECT 
+    CM.memberID,
+    CM.firstName,
+    CM.lastName
+FROM ClubMembers CM
+LEFT JOIN Game_Participation GP ON CM.memberID = GP.memberID
+WHERE CM.memberType = 'Major' AND GP.gameID IS NULL;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query V: Member Age Statistics}
+
+\begin{verbatim}
+SELECT 
+    TIMESTAMPDIFF(YEAR, DOB, CURDATE()) AS Age,
+    COUNT(memberID) AS TotalMembers
+FROM ClubMembers
+GROUP BY Age
+ORDER BY Age DESC;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query VI: Major Members Who Are Also Family Members}
+
+\begin{verbatim}
+SELECT 
+    CM.memberID AS ParentMemberID,
+    CM.firstName AS ParentFirstName,
+    CM.lastName AS ParentLastName,
+    Child.memberID AS ChildMemberID,
+    Child.firstName AS ChildFirstName,
+    Child.lastName AS ChildLastName,
+    FR.relationshipType
+FROM ClubMembers CM
+JOIN FamilyMembers FM ON CM.SSN = FM.SSN
+JOIN FamilyRelationship FR ON FM.familyID = FR.familyID
+JOIN ClubMembers Child ON FR.memberID = Child.memberID
+WHERE CM.memberType = 'Major' AND FR.endDate IS NULL;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query VII: Membership Fees and Donations Report}
+
+Calculates fee contributions (\$200 standard fee for Major members) and donations aggregated from total payments across installments between 2023 and 2025.
+
+\begin{verbatim}
+SELECT 
+    MemberTotals.membershipYear,
+    SUM(LEAST(MemberTotals.TotalPaid, 200)) AS TotalFees,
+    SUM(GREATEST(MemberTotals.TotalPaid - 200, 0)) AS TotalDonations
+FROM (
+    SELECT 
+        P.memberID,
+        P.membershipYear,
+        SUM(P.amount) AS TotalPaid
+    FROM Payments P
+    JOIN ClubMembers CM ON P.memberID = CM.memberID
+    WHERE CM.memberType = 'Major' 
+      AND P.membershipYear BETWEEN 2023 AND 2025
+    GROUP BY P.memberID, P.membershipYear
+) AS MemberTotals
+GROUP BY MemberTotals.membershipYear;
+\end{verbatim}
+
+
+%------------------------------------------------
+\subsection{Query VIII: Members Participating in Four or More FIFA Games}
+
+\begin{verbatim}
+SELECT 
+    CM.memberID,
+    CM.firstName,
+    CM.lastName,
+    CM.memberType,
+    COUNT(GP.gameID) AS TotalGames
+FROM ClubMembers CM
+JOIN Game_Participation GP ON CM.memberID = GP.memberID
+GROUP BY CM.memberID, CM.firstName, CM.lastName, CM.memberType
+HAVING COUNT(GP.gameID) >= 4
+ORDER BY TotalGames DESC;
+\end{verbatim}
+
+
+
+
+
+%================================================
+\section{Database Relation Tuple Count}
+%================================================
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lc}
+\toprule
+Relation Name & Tuple Count \\
+\midrule
+Locations & 10 \\
+Personnel & 10 \\
+Personnel\_Assignment & 10 \\
+ClubMembers & 10 \\
+Member\_Location\_History & 10 \\
+FamilyMembers & 10 \\
+Family\_Location\_History & 10 \\
+FamilyRelationship & 10 \\
+Hobbies & 10 \\
+Member\_Hobby & 10 \\
+Payments & 10 \\
+Teams & 10 \\
+Team\_Members & 10 \\
+FIFA\_Games & 10 \\
+Game\_Participation & 10 \\
+\bottomrule
+\end{tabular}
+\caption{Database Population Summary}
+\end{table}
+
+
+
+
+
+%================================================
+\section{Conclusion}
+%================================================
+
+
+The Country Soccer Club System (CSCS) database was fully designed and implemented on MySQL 8.0. The schema accurately models physical location operations, personnel mandates, player demographics, multi-installment payments, and competitive play history while strictly maintaining relational integrity and normalization standards.
+
+
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{mysql}
+MySQL 8.0 Reference Manual,
+\url{https://dev.mysql.com/doc/refman/8.0/en/}
+
+\bibitem{elmasri}
+R. Elmasri and S. Navathe,
+\textit{Fundamentals of Database Systems}, 7th ed., Pearson.
+
+\bibitem{silberschatz}
+A. Silberschatz, H. Korth, and S. Sudarshan,
+\textit{Database System Concepts}, 7th ed., McGraw-Hill.
+
+\end{thebibliography}
+
+
+
+\end{document}
