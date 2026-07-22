@@ -50,6 +50,7 @@ UPDATE Locations SET ManagerID = 10 WHERE LocationID = 10;
 
 
 -- 3. ClubMembers
+--    Majors: 1, 3, 5, 7, 9, 11   Minors: 2, 4, 6, 8, 10
 --    Members 1 and 3 are ALSO family members (same SSN) -> query vi
 
 INSERT INTO ClubMembers (FirstName, LastName, DOB, Height, Weight, SSN, MedicareNo, Phone, Address, City, Province, PostalCode, RegistrationDate, MemberType) VALUES
@@ -90,7 +91,6 @@ INSERT INTO Hobbies (HobbyName) VALUES
 ('Soccer'), ('Swimming'), ('Tennis'), ('Golf'), ('Hockey'),
 ('Volleyball'), ('Ping Pong'), ('Basketball'), ('Running'), ('Cycling');
 
-=
 -- 6. Personnel_Assignment (EndDate NULL = still active there)
 --    Personnel 2 has a past assignment to show work history.
 
